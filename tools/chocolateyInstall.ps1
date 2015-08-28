@@ -13,8 +13,8 @@ copy $poshCdeModuleFilePath $poshCdeModuleFileDstPath;
 
 if(-not (Test-Path $profile))
 {
-    New-Item $profile -ItemType File;
+    New-Item $profile -ItemType File | Out-Null;
 }
 
 ("Import-Module {0}" -f $poshCdeModuleFileDstPath) | Out-File $profile -Append;
-& $profile;
+Write-Host "Please execute `"& `$profile`" to enable posh-cde in this console.";
