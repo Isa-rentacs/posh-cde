@@ -6,19 +6,19 @@
     <id>posh-cde</id>
     <title>Powershell cd extension</title>
     <version>0.1.0.0</version>
-    <authors></authors>
+    <authors>jukuroda@oulook.jp</authors>
     <owners></owners>
     <summary>Powershell cd extension</summary>
     <description>A Powershell module to extend cd behavior</description>
-    <projectUrl></projectUrl>
+    <projectUrl>http://127.0.0.1</projectUrl>
     <tags></tags>
     <copyright></copyright>
-    <licenseUrl></licenseUrl>
+    <licenseUrl>http://127.0.0.1</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <!-- Important note about https://cdn.rawgit.com: Files are cached permanently after the first request. Use commit URLs when updating the icon. -->
     <!--<iconUrl>http://cdn.rawgit.com/__CHOCO_PKG_MAINTAINER_REPO__/master/icons/__NAME__.png</iconUrl>-->
     <dependencies>
-      <dependency id="peco" version="" />
+      <dependency id="peco" version="0.2.2" />
     </dependencies>
     <releaseNotes></releaseNotes>
   </metadata>

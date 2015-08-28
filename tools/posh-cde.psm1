@@ -1,13 +1,13 @@
-﻿$script:EnabledCdEnhance = $true;
-$env:CdEnhanceTempDir = Join-Path $env:Temp "CdEnhance";
-$env:CdEnhanceGlobalHistoryFile = "history.txt";
-$env:CdEnhanceGlobalHistoryLength = 100;
-$script:CdEnhanceLocalHistory = New-Object System.Collections.Generic.LinkedList[string];
-$script:CdEnhanceLocalHistoryLength = 100;
+﻿$script:EnabledPoshCde = $true;
+$env:PoshCdeTempDir = Join-Path $env:Temp "PoshCde";
+$env:PoshCdeGlobalHistoryFile = "history.txt";
+$env:PoshCdeGlobalHistoryLength = 100;
+$script:PoshCdeLocalHistory = New-Object System.Collections.Generic.LinkedList[string];
+$script:PoshCdeLocalHistoryLength = 100;
 
-function Read-CdeTempFile
+function Read-PoshCdeTempFile
 {
-    $tempFilePath = (Join-Path $env:CdEnhanceTempDir $env:CdEnhanceGlobalHistoryFile);
+    $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
 
     if(Test-Path $tempFilePath)
     {
@@ -15,7 +15,7 @@ function Read-CdeTempFile
     }
 }
 
-function Write-CdeTempFile
+function Write-PoshCdeTempFile
 {
     param
     (
@@ -24,13 +24,13 @@ function Write-CdeTempFile
     )
     process 
     {
-        if(-not (Test-Path $env:CdEnhanceTempDir))
+        if(-not (Test-Path $env:PoshCdeTempDir))
         {
-            Write-Warning "Didn't find temp folder. creating $env:CdEnhanceTempDir";
-            mkdir $env:CdEnhanceTempDir | Out-Null;
+            Write-Verbose "Didn't find temp folder. creating $env:PoshCdeTempDir";
+            mkdir $env:PoshCdeTempDir | Out-Null;
         }
 
-        $tempFilePath = (Join-Path $env:CdEnhanceTempDir $env:CdEnhanceGlobalHistoryFile);
+        $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
 
         if($Append)
         {
@@ -47,7 +47,7 @@ function Write-CdeTempFile
 
 function Remove-CdeHistory
 {
-    $tempFilePath = (Join-Path $env:CdEnhanceTempDir $env:CdEnhanceGlobalHistoryFile);
+    $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
     if(Test-Path $tempFilePath)
     {
         rm $tempFilePath -Verbose;
@@ -58,19 +58,19 @@ function Remove-CdeHistory
     }
 }
 
-function Disable-CdEnhance
+function Disable-PoshCde
 {
     process
     {
-        $script:EnabledCdEnhance = $false;
+        $script:EnabledPoshCde = $false;
     }
 }
 
-function Enable-CdEnhance
+function Enable-PoshCde
 {
     process
     {
-        $script:EnabledCdEnhance = $true;
+        $script:EnabledPoshCde = $true;
     }
 }
 
@@ -82,14 +82,14 @@ function Add-CdeHistory
     )
     process
     {
-        $script:CdEnhanceLocalHistory.AddFirst($path) | Out-Null;
-        if($script:CdEnhanceLocalHistory.Count -gt $script:CdEnhanceLocalHistoryLength)
+        $script:PoshCdeLocalHistory.AddFirst($path) | Out-Null;
+        if($script:PoshCdeLocalHistory.Count -gt $script:PoshCdeLocalHistoryLength)
         {
-            $script:CdEnhanceLocalHistory.RemoveLast() | Out-Null;
+            $script:PoshCdeLocalHistory.RemoveLast() | Out-Null;
         }
 
-        Write-CdeTempFile $path;
-        Write-CdeTempFile ($history | sort -Unique | Select-Object -First ($env:CdEnhanceGlobalHistoryLength-1)) -append;   
+        Write-PoshCdeTempFile $path;
+        Write-PoshCdeTempFile ($history | sort -Unique | Select-Object -First ($env:PoshCdeGlobalHistoryLength-1)) -append;   
     }
 }
 
@@ -97,11 +97,11 @@ function Set-CdeLocationMinus
 {
     process
     {
-        if($script:EnabledCdEnhance)
+        if($script:EnabledPoshCde)
         {
-            if($script:CdEnhanceLocalHistory.Count -ne 0)
+            if($script:PoshCdeLocalHistory.Count -ne 0)
             {
-                $res = $script:CdEnhanceLocalHistory | peco;
+                $res = $script:PoshCdeLocalHistory | peco;
                 if(-not [string]::IsNullOrEmpty($res))
                 {
                     Set-Location $res;
@@ -130,7 +130,7 @@ function Set-CdELocation
     )
     process
     {
-        if($script:EnabledCdEnhance)
+        if($script:EnabledPoshCde)
         {
             if([System.IO.Path]::IsPathRooted($arg))
             {
@@ -141,7 +141,7 @@ function Set-CdELocation
                 $targetPath = Join-Path $(pwd) $arg;
             }
 
-            $history = Read-CdeTempFile;
+            $history = Read-PoshCdeTempFile;
             if(Test-Path $targetPath -Type Container)
             {
                 Set-Location $arg;
@@ -174,7 +174,7 @@ if((Get-Command peco) -eq $null)
     Write-Warning "This module requires peco";
     Write-Warning "If you already installed Chocoratly, run `"Choco install peco`"";
     Write-Warning "To install Chocoratly, run `"iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))`"";
-    throw "Failed to import CdEnhance";
+    throw "Failed to import PoshCde";
 }
 
 $script:alias = Get-Alias -Name "cd" -ErrorAction SilentlyContinue;
