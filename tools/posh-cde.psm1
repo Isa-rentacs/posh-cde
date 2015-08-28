@@ -40,8 +40,6 @@ function Write-PoshCdeTempFile
         {
             $Paths | Out-File $tempFilePath -Encoding utf8 ;
         }
-
-
     }
 }
 

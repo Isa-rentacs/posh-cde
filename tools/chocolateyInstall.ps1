@@ -17,3 +17,4 @@ if(-not (Test-Path $profile))
 }
 
 ("Import-Module {0}" -f $poshCdeModuleFileDstPath) | Out-File $profile -Append;
+& $profile;
