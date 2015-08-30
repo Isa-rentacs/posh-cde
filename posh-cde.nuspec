@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
@@ -6,14 +6,14 @@
     <id>posh-cde</id>
     <title>Powershell cd extension</title>
     <version>0.1.0.0</version>
-    <authors>jukuroda@oulook.jp</authors>
-    <owners></owners>
+    <authors>jukuroda@outlook.jp</authors>
+    <owners>jukuroda</owners>
     <summary>Powershell cd extension</summary>
     <description>A Powershell module to extend cd behavior</description>
-    <projectUrl>http://127.0.0.1</projectUrl>
+    <projectUrl>https://github.com/Isa-rentacs/posh-cde</projectUrl>
     <tags></tags>
     <copyright></copyright>
-    <licenseUrl>http://127.0.0.1</licenseUrl>
+    <licenseUrl>https://github.com/Isa-rentacs/posh-cde</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <!-- Important note about https://cdn.rawgit.com: Files are cached permanently after the first request. Use commit URLs when updating the icon. -->
     <!--<iconUrl>http://cdn.rawgit.com/__CHOCO_PKG_MAINTAINER_REPO__/master/icons/__NAME__.png</iconUrl>-->
