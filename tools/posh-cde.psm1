@@ -43,7 +43,7 @@ function Write-PoshCdeTempFile
     }
 }
 
-function Remove-CdeHistory
+function Remove-PoshCdeHistory
 {
     $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
     if(Test-Path $tempFilePath)
@@ -72,7 +72,7 @@ function Enable-PoshCde
     }
 }
 
-function Add-CdeHistory
+function Add-PoshCdeHistory
 {
     param
     (
@@ -91,7 +91,7 @@ function Add-CdeHistory
     }
 }
 
-function Set-CdeLocationMinus
+function Set-PoshCdeLocationMinus
 {
     process
     {
@@ -114,12 +114,12 @@ function Set-CdeLocationMinus
                 return;
             }
 
-            Add-CdeHistory $(pwd);
+            Add-PoshCdeHistory $(pwd);
         }
     }
 }
 
-function Set-CdELocation
+function Set-PoshCdELocation
 {
     [CmdletBinding()]
     param
@@ -158,21 +158,13 @@ function Set-CdELocation
                 }
             }
             
-            Add-CdEHistory $(pwd);
+            Add-PoshCdEHistory $(pwd);
         }
         else
         {
             Set-Location $arg;
         }
     }
-}
-
-if((Get-Command peco) -eq $null)
-{
-    Write-Warning "This module requires peco";
-    Write-Warning "If you already installed Chocoratly, run `"Choco install peco`"";
-    Write-Warning "To install Chocoratly, run `"iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))`"";
-    throw "Failed to import PoshCde";
 }
 
 $script:alias = Get-Alias -Name "cd" -ErrorAction SilentlyContinue;
@@ -189,5 +181,5 @@ $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     set-item alias:cd -value $script:orig_cd
 }
 
-Set-Item alias:cd -Value 'Set-CdELocation';
-Set-Item alias:cd- -Value 'Set-CdeLocationMinus';
+Set-Item alias:cd -Value 'Set-PoshCdELocation';
+Set-Item alias:cd- -Value 'Set-PoshCdeLocationMinus';
