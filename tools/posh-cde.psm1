@@ -1,9 +1,12 @@
-﻿$script:EnabledPoshCde = $true;
+﻿# Constants
+$script:EnabledPoshCde = $true;
 $env:PoshCdeTempDir = Join-Path $env:Temp "PoshCde";
 $env:PoshCdeGlobalHistoryFile = "history.txt";
 $env:PoshCdeGlobalHistoryLength = 100;
 $script:PoshCdeLocalHistory = New-Object System.Collections.Generic.LinkedList[string];
 $script:PoshCdeLocalHistoryLength = 100;
+
+# Functions used internally (won't be imported)
 
 function Read-PoshCdeTempFile
 {
@@ -11,7 +14,7 @@ function Read-PoshCdeTempFile
 
     if(Test-Path $tempFilePath)
     {
-        gc $tempFilePath -Encoding UTF8;
+        Get-Content $tempFilePath -Encoding UTF8;
     }
 }
 
@@ -54,16 +57,6 @@ function Remove-PoshCdeHistory
     {
         Write-Warning "Didn't find the history file";
     }
-}
-
-function Disable-PoshCde
-{
-    $script:EnabledPoshCde = $false;
-}
-
-function Enable-PoshCde
-{
-    $script:EnabledPoshCde = $true;
 }
 
 function Set-PoshCdeLocationIfSelected
@@ -114,7 +107,6 @@ function Add-PoshCdeHistory
     }
 }
 
-#
 function IsNetworkPath
 {
     param
@@ -165,6 +157,18 @@ function GetUpperDirectories
 
         $ret;
     }
+}
+
+# Functions to be exported
+
+function Disable-PoshCde
+{
+    $script:EnabledPoshCde = $false;
+}
+
+function Enable-PoshCde
+{
+    $script:EnabledPoshCde = $true;
 }
 
 function Set-PoshCdeLocationUp
@@ -245,6 +249,8 @@ function Set-PoshCdeLocation
     }
 }
 
+# Scripts which will be executed on Import-Module
+
 $script:alias = Get-Alias -Name "cd" -ErrorAction SilentlyContinue;
 if($script:alias -eq $null)
 {
@@ -257,12 +263,22 @@ else
 
 Set-Item alias:cd -Value 'Set-PoshCdeLocation';
 
+# Export only limited function if not in debug mode
+if([string]::IsNullOrEmpty($env:PoshCdeDebug))
+{
+    Export-ModuleMember Enable-PoshCde;
+    Export-ModuleMember Disable-PoshCde;
+    Export-ModuleMember Set-PoshCdeLocation;
+    Export-ModuleMember Set-PoshCdeLocationMinus;
+    Export-ModuleMember Set-PoshCdeLocationUp;
+}
+
 # For Win8.1, alias with symbols seems not working.
 Set-Alias cd- -Value 'Set-PoshCdeLocationMinus' -Option AllScope -Scope Global -Force;
 Set-Alias cdp -Value 'Set-PoshCdeLocationMinus' -Option AllScope -Scope Global -Force;
 Set-Alias up -Value "Set-PoshCdeLocationUp" -Option AllScope -Scope Global -Force;
 
-# Called when this module is "Remove-Module"ed.
+# Will be called on Remove-Module
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Write-Warning "If you are running Win10, default alias cd will disappear. Run `"Set-Alias cd Set-Location`" to restore.";
     Set-Item alias:cd -value $script:orig_cd
@@ -270,3 +286,4 @@ $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Remove-Item alias:cdp;
     Remove-Item alias:up;
 }
+
