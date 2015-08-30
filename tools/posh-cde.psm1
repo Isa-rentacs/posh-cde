@@ -58,17 +58,40 @@ function Remove-PoshCdeHistory
 
 function Disable-PoshCde
 {
-    process
-    {
-        $script:EnabledPoshCde = $false;
-    }
+    $script:EnabledPoshCde = $false;
 }
 
 function Enable-PoshCde
 {
+    $script:EnabledPoshCde = $true;
+}
+
+function Set-PoshCdeLocationIfSelected
+{
+    param
+    (
+        $CandidateDirs,
+        $queryForPeco = [string]::Empty
+    )
     process
     {
-        $script:EnabledPoshCde = $true;
+        if($CandidateDirs -eq $null)
+        {
+            Write-Error "There are not candidate dirs.";
+        }
+        else
+        {
+            $res = $CandidateDirs | peco --query=$queryForPeco;
+            if(-not ([string]::IsNullOrEmpty($res)))
+            {
+                Set-Location $res;
+                return $true;
+            }
+            else
+            {
+                return $false;
+            }
+        }
     }
 }
 
@@ -91,6 +114,72 @@ function Add-PoshCdeHistory
     }
 }
 
+#
+function IsNetworkPath
+{
+    param
+    (
+        $path
+    )
+    process
+    {
+        # heuristics to check whether current dir is network dir or not
+        if([string]::IsNullOrEmpty(([System.IO.Path]::GetPathRoot($path))))
+        {
+            $true;
+        }
+        else
+        {
+            $false;
+        }
+    }
+}
+
+function GetUpperDirectories
+{
+    param
+    (
+        $path
+    )
+    process
+    {
+        $fullpath = $null;
+        $current = $path;
+        $ret = New-Object System.Collections.Generic.List[string];
+
+        if(IsNetworkPath($current))
+        {
+            # Invoke string.split(string[], StringSplitOpeions)
+            $fullpath = ($current.ToString().Split([string]"::", [System.StringSplitOptions]::RemoveEmptyEntries))[1];
+        }
+        else
+        {
+            $fullpath = $current;
+        }
+
+        $tmp = $fullpath;
+        while(-not ([string]::IsNullOrEmpty(($tmp = (Split-Path $tmp -Parent)))))
+        {
+            $ret.Add($tmp);
+        }
+
+        $ret;
+    }
+}
+
+function Set-PoshCdeLocationUp
+{
+    if($script:EnabledPoshCde)
+    {
+        if(-not (Set-PoshCdeLocationIfSelected (GetUpperDirectories (Get-Location))))
+        {
+            return;
+        }
+
+        Add-PoshCdeHistory (Get-Location);
+    }
+}
+
 function Set-PoshCdeLocationMinus
 {
     process
@@ -99,12 +188,7 @@ function Set-PoshCdeLocationMinus
         {
             if($script:PoshCdeLocalHistory.Count -ne 0)
             {
-                $res = $script:PoshCdeLocalHistory | peco;
-                if(-not [string]::IsNullOrEmpty($res))
-                {
-                    Set-Location $res;
-                }
-                else
+                if(-not (Set-PoshCdeLocationIfSelected $script:PoshCdeLocalHistory))
                 {
                     return;
                 }
@@ -114,12 +198,12 @@ function Set-PoshCdeLocationMinus
                 return;
             }
 
-            Add-PoshCdeHistory $(pwd);
+            Add-PoshCdeHistory (Get-Location);
         }
     }
 }
 
-function Set-PoshCdELocation
+function Set-PoshCdeLocation
 {
     [CmdletBinding()]
     param
@@ -136,7 +220,7 @@ function Set-PoshCdELocation
             }
             else
             {
-                $targetPath = Join-Path $(pwd) $arg;
+                $targetPath = Join-Path (Get-Location) $arg;
             }
 
             $history = Read-PoshCdeTempFile;
@@ -146,13 +230,7 @@ function Set-PoshCdELocation
             }
             else
             {
-                $history | %{Write-Verbose $_};
-                $res = ($history | peco --query $arg);
-                if(-not [string]::IsNullOrEmpty($res))
-                {
-                    Set-Location $res;
-                }
-                else
+                if(-not (Set-PoshCdeLocationIfSelected -CandidateDirs $history -queryForPeco $arg))
                 {
                     return;
                 }
@@ -176,10 +254,19 @@ else
 {
     $script:orig_cd = $script:alias.Definition;
 }
+
+Set-Item alias:cd -Value 'Set-PoshCdeLocation';
+
+# For Win8.1, alias with symbols seems not working.
+Set-Alias cd- -Value 'Set-PoshCdeLocationMinus' -Option AllScope -Scope Global -Force;
+Set-Alias cdp -Value 'Set-PoshCdeLocationMinus' -Option AllScope -Scope Global -Force;
+Set-Alias up -Value "Set-PoshCdeLocationUp" -Option AllScope -Scope Global -Force;
+
+# Called when this module is "Remove-Module"ed.
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Write-Warning "If you are running Win10, default alias cd will disappear. Run `"Set-Alias cd Set-Location`" to restore.";
-    set-item alias:cd -value $script:orig_cd
+    Set-Item alias:cd -value $script:orig_cd
+    Remove-Item alias:cd-;
+    Remove-Item alias:cdp;
+    Remove-Item alias:up;
 }
-
-Set-Item alias:cd -Value 'Set-PoshCdELocation';
-Set-Item alias:cd- -Value 'Set-PoshCdeLocationMinus';
