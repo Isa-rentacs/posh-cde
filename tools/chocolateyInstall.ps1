@@ -17,4 +17,4 @@ if(-not (Test-Path $profile))
 }
 
 ("Import-Module {0}" -f $poshCdeModuleFileDstPath) | Out-File $profile -Append;
-Write-Host "[posh-cde]Please execute `"& `$profile`" to enable posh-cde in this console." -f Magenta;
+Write-Host "[posh-cde] Please execute `"& `$profile`" to enable posh-cde in this console.";
