@@ -1,6 +1,11 @@
 ﻿# Constants
 $script:EnabledPoshCde = $true;
-$env:PoshCdeTempDir = Join-Path $env:Temp "PoshCde";
+if (Test-Path($env:Temp)) {
+  $Temp = $env:Temp
+} else {
+  $Temp = $env:TMPDIR
+}
+$env:PoshCdeTempDir = Join-Path $Temp "PoshCde";
 $env:PoshCdeGlobalHistoryFile = "history.txt";
 $env:PoshCdeGlobalHistoryLength = 100;
 $script:PoshCdeLocalHistory = New-Object System.Collections.Generic.LinkedList[string];
