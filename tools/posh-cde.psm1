@@ -1,6 +1,11 @@
 ﻿# Constants
 $script:EnabledPoshCde = $true;
-$env:PoshCdeTempDir = Join-Path $env:Temp "PoshCde";
+if (Test-Path($env:Temp)) {
+  $Temp = $env:Temp
+} else {
+  $Temp = $env:TMPDIR
+}
+$env:PoshCdeTempDir = Join-Path $Temp "PoshCde";
 $env:PoshCdeGlobalHistoryFile = "history.txt";
 $env:PoshCdeGlobalHistoryLength = 100;
 $script:PoshCdeLocalHistory = New-Object System.Collections.Generic.LinkedList[string];
@@ -30,7 +35,7 @@ function Write-PoshCdeTempFile
         if(-not (Test-Path $env:PoshCdeTempDir))
         {
             Write-Verbose "Didn't find temp folder. creating $env:PoshCdeTempDir";
-            mkdir $env:PoshCdeTempDir | Out-Null;
+            New-Item -ItemType Directory -Path $env:PoshCdeTempDir | Out-Null;
         }
 
         $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
@@ -51,7 +56,7 @@ function Remove-PoshCdeHistory
     $tempFilePath = (Join-Path $env:PoshCdeTempDir $env:PoshCdeGlobalHistoryFile);
     if(Test-Path $tempFilePath)
     {
-        rm $tempFilePath -Verbose;
+        Remove-Item -Path $tempFilePath -Verbose;
     }
     else
     {
@@ -103,7 +108,7 @@ function Add-PoshCdeHistory
         }
 
         Write-PoshCdeTempFile $path;
-        Write-PoshCdeTempFile ($history | sort -Unique | Select-Object -First ($env:PoshCdeGlobalHistoryLength-1)) -append;   
+        Write-PoshCdeTempFile ($history | Sort-Item -Unique | Select-Object -First ($env:PoshCdeGlobalHistoryLength-1)) -append;   
     }
 }
 
